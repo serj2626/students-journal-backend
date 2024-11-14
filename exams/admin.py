@@ -35,6 +35,7 @@ class SessionModelAdmin(admin.ModelAdmin):
     """
 
     list_display = (
+        "status",
         "date_start",
         "date_end",
         "course",

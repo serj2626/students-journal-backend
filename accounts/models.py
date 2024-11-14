@@ -19,4 +19,7 @@ class User(AbstractUser):
         default="student",
         verbose_name="Тип пользователя",
     )
+    middle_name = models.CharField(
+        max_length=30, null=True, blank=True, verbose_name="Отчество"
+    )
     online = models.BooleanField(default=False, verbose_name="онлайн")

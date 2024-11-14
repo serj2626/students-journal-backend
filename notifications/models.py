@@ -3,14 +3,15 @@ from common.service import BaseAbstractModel
 from core.models import Student, Teacher
 
 Type_Subject = (
-    ("homework", "Домашка проверена"),
+    ("homework", "Домашняя работа проверена"),
     ("suggestion", "Предложение"),
     ("complaint", "Жалоба"),
-    ("message", "Сообщение"),
+    ("message", "Новое входящее сообщение"),
     ("session", "Сессия"),
     ("exam", "Экзамен"),
     ("mark", "Оценка"),
-    ("feedback", "Обратная связь"),
+    ("feedback", "Ваше обращение принято"),
+    ("subscription", "Вы успешно подписались на рассылку"),
     ("other", "Другое"),
 )
 

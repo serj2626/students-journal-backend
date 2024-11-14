@@ -2,18 +2,43 @@ from django.db import models
 from common.service import BaseAbstractModel
 from core.models import Course, Teacher, Subject, StudyGroup, Student
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
 
 
 class SessionModel(BaseAbstractModel):
     """Модель сессии студентов"""
 
+    STATUS_SESSION = (
+        ("not_started", "Не началась"),
+        ("open", "Открыта"),
+        ("close", "Завершена"),
+    )
+
+    status = models.CharField(
+        max_length=255,
+        verbose_name="Статус",
+        choices=STATUS_SESSION,
+        default="not_started",
+    )
     date_start = models.DateField(verbose_name="Начало сессии")
     date_end = models.DateField(verbose_name="Конец сессии")
     course = models.ForeignKey(
         Course, on_delete=models.CASCADE, verbose_name="Курс", blank=True, null=True
     )
 
-    def clean(self):
+    def clean_status(self):
+        if timezone.now().date() > self.date_end:
+            self.status = "close"
+        if timezone.now().date() < self.date_start:
+            self.status = "not_started"
+        if (
+            timezone.now().date() > self.date_start
+            and timezone.now().date() < self.date_end
+        ):
+            self.status = "open"
+        return super().clean()
+
+    def clean_date(self):
         if self.date_end <= self.date_start:
             raise ValueError("Дата конца сессии должна быть больше даты начала")
         return super().clean()
