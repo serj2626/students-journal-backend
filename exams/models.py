@@ -29,13 +29,13 @@ class SessionModel(BaseAbstractModel):
     def clean_status(self):
         if timezone.now().date() > self.date_end:
             self.status = "close"
-        if timezone.now().date() < self.date_start:
-            self.status = "not_started"
         if (
             timezone.now().date() > self.date_start
             and timezone.now().date() < self.date_end
         ):
             self.status = "open"
+        else:
+            self.status = "not_started"
         return super().clean()
 
     def clean_date(self):
@@ -75,7 +75,7 @@ class Exam(BaseAbstractModel):
         verbose_name="Учебная группа",
         related_name="exams",
     )
-    date = models.DateField(verbose_name="Дата  экзамена")
+    date = models.DateField(verbose_name="Дата экзамена")
 
     def __str__(self):
         return f"Экзамен {self.subject} {self.group} {self.date}"
@@ -113,3 +113,48 @@ class MarkExam(BaseAbstractModel):
     class Meta:
         verbose_name = "Оценка экзамена"
         verbose_name_plural = "Оценки экзамена"
+
+
+class RetakeExam(BaseAbstractModel):
+    """
+    Модель повторной сдачи экзамена
+    """
+
+    STATUS_RETAKE_EXAM = (
+        ("not_started", "Запланирована"),
+        ("open", "Идет сдача"),
+        ("close", "Завершена"),
+    )
+
+    status = models.CharField(
+        max_length=255,
+        verbose_name="Статус",
+        choices=STATUS_RETAKE_EXAM,
+        default="not_started",
+    )
+
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        verbose_name="Студент",
+        related_name="retake_exams",
+    )
+    exam = models.ForeignKey(
+        Exam,
+        on_delete=models.CASCADE,
+        verbose_name="Экзамен",
+        related_name="retake_exams",
+    )
+    mark = models.SmallIntegerField(
+        "Оценка",
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+    )
+
+    date = models.DateTimeField(verbose_name="Дата повторного экзамена")
+
+    def __str__(self):
+        return f"Повторная сдача экзамена {self.mark} {self.student}"
+
+    class Meta:
+        verbose_name = "Повторная сдача экзамена"
+        verbose_name_plural = "Повторные сдачи экзамена"
